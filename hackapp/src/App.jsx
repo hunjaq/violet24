@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -8,6 +8,35 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
 function App() {
+
+  // User text input
+  const [replyValue, setReplyValue] = useState('');
+
+  // Track text box data
+  const handleReply = (event) => {
+    setReplyValue(event.target.value);
+  };
+
+  // Submit text box
+  const handleSubmit = async () => {
+    try {
+      // API call
+      const response = await fetch('_ENDPOINT', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: replyValue }),
+        });
+        if (!response.ok) throw new Error('Network response error.');
+        const data = await response.json();
+        console.log(data); // Output response to console for now
+    }
+    catch (error) {
+      console.error('Problem with fetch operation.', error);
+    }
+  };
+
   return (
     <Box 
       className="App" 
@@ -40,8 +69,10 @@ function App() {
           multiline
           variant="standard" // Change from 'outlined' to 'standard'
           sx={{ minWidth: 500 }}
+          value={replyValue}
+          onChange={handleReply}
         />
-        <Button variant="contained">Button</Button>
+        <Button variant="contained" onClick={handleSubmit}>Button</Button>
       </Card>
     </Box>
   );
