@@ -1,0 +1,18 @@
+TODO List:
+
+ChatGPT Section:
+  Base Functionality:
+    Get list of fifty behavioral questions
+    Figure out how to optimally prompt chatgpt to get meaningful responses
+  Further Implementation:
+    Analyze and highlight specific parts of the users response
+    Implement whisper api so user can talk into the mic
+
+Front-End Section:
+  Base Functionality:
+    Interview question, user response, chatgpt analysis
+    Next button (with audio effect)
+    Header
+  Further Implementation:
+    Login
+    History of questions
