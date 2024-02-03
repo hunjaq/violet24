@@ -11,6 +11,7 @@ function App() {
 
   // User text input
   const [replyValue, setReplyValue] = useState('');
+  const [gptResponse, setGptResponse] = useState('gpt response');
 
   // Track text box data
   const handleReply = (event) => {
@@ -30,7 +31,7 @@ function App() {
         });
         if (!response.ok) throw new Error('Network response error.');
         const data = await response.json();
-        console.log(data); // Output response to console for now
+        setGptResponse(data); // Output response to gpt box
     }
     catch (error) {
       console.error('Problem with fetch operation.', error);
@@ -57,7 +58,7 @@ function App() {
             Chat-GPT 
           </Typography>
           <Typography variant="body2">
-            Chat-GPT response
+            {gptResponse}
           </Typography>
         </CardContent>
       </Card>
