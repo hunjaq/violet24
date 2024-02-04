@@ -1,5 +1,5 @@
 from openai import OpenAI
-client = OpenAI()
+client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 # This is the prompt that is given to chatgpt that tells it what it is
 training = """You are an interviewer asking basic behavioral questions 
