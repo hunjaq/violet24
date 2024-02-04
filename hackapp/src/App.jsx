@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -6,48 +6,22 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import axios from 'axios';
+import useSpeechRecognition from './hooks/useSpeechRecogniztionHook';
+import useGPTAPI from './hooks/useGPTAPI'; // Import the new hook
 
 function App() {
+  const { text, startListening, stopListening, isListening, hasRecognitionSupport,} = useSpeechRecognition();
+  const { sendTextToGPTAPI } = useGPTAPI(); // Use the new hook
 
-  // User text input
-  const [replyValue, setReplyValue] = useState('');
-  const [gptResponse, setGptResponse] = useState('gpt response');
-
-  // Track text box data
-  const handleReply = (event) => {
-    setReplyValue(event.target.value);
-  };
-
-  // Submit text box
-  const handleSubmit = async () => {
+  const handleSendText = async () => {
     try {
-      // API call
-      const response = await axios.post('_ENDPOINT', {
-        data: replyValue
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      setGptResponse(response.data);
+      const response = await sendTextToGPTAPI(text);
+      console.log(text);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
     }
-    catch(error) {
-      console.error('fetch operation failed', error);
-      if (error.response) {
-        console.error(error.response.data);
-        console.error(error.response.status);
-        console.error(error.response.headers);
-      }
-      else if (error.request) {
-        console.error(error.request);
-      }
-      else {
-        console.error('Error', error.message);
-      }
-    } 
   };
-
 
   return (
     <Box 
@@ -60,6 +34,29 @@ function App() {
       style={{ marginTop: '20px' }}
       flexGrow={1}
     >
+      <div>
+        {hasRecognitionSupport ? (
+          <>
+            <div>
+              <button onClick = {startListening}>
+                Start Listening 
+              </button>
+            </div>
+
+            <div>
+              <button onClick = {stopListening}>
+                Stop Listening 
+              </button>
+            </div>
+
+            {isListening ? <div> Listening...</div> : null}
+            {text}
+          </>
+          
+        ) : (
+          <h1> No recognition support</h1>
+        )}
+      </div>
       <header className="Chat-Gpt">
         <h1>Interview App</h1>
       </header>
@@ -69,7 +66,7 @@ function App() {
             Chat-GPT 
           </Typography>
           <Typography variant="body2">
-            {gptResponse}
+            Chat-GPT response
           </Typography>
         </CardContent>
       </Card>
@@ -81,13 +78,11 @@ function App() {
           multiline
           variant="standard" // Change from 'outlined' to 'standard'
           sx={{ minWidth: 500 }}
-          value={replyValue}
-          onChange={handleReply}
         />
-        <Button variant="contained" onClick={handleSubmit}>Button</Button>
+        <Button variant="contained" onClick={handleSendText}>Send Text</Button>
       </Card>
     </Box>
   );
-  }
+}
 
 export default App;
