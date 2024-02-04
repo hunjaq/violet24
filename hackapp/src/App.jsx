@@ -6,6 +6,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import axios from 'axios';
 
 function App() {
 
@@ -22,21 +23,31 @@ function App() {
   const handleSubmit = async () => {
     try {
       // API call
-      const response = await fetch('_ENDPOINT', {
-        method: 'POST',
+      const response = await axios.post('_ENDPOINT', {
+        data: replyValue
+      }, {
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: replyValue }),
-        });
-        if (!response.ok) throw new Error('Network response error.');
-        const data = await response.json();
-        setGptResponse(data); // Output response to gpt box
+        }
+      });
+      setGptResponse(response.data);
     }
-    catch (error) {
-      console.error('Problem with fetch operation.', error);
-    }
+    catch(error) {
+      console.error('fetch operation failed', error);
+      if (error.response) {
+        console.error(error.response.data);
+        console.error(error.response.status);
+        console.error(error.response.headers);
+      }
+      else if (error.request) {
+        console.error(error.request);
+      }
+      else {
+        console.error('Error', error.message);
+      }
+    } 
   };
+
 
   return (
     <Box 
@@ -77,6 +88,6 @@ function App() {
       </Card>
     </Box>
   );
-}
+  }
 
 export default App;
