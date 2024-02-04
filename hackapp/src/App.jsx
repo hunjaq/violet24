@@ -8,7 +8,20 @@ import { AppBar, Toolbar } from '@mui/material';
 import qApi from './api/axiosConfig';
 import useSpeechRecognition from './hooks/useSpeechRecogniztionHook';
 import useGPTAPI from './hooks/useGPTAPI'; 
+import IconButton from '@mui/material/IconButton';
+import SvgIcon from '@mui/material/SvgIcon'
 
+const SquareIcon = (props) => (
+  <SvgIcon {...props}>
+    <rect x="4" y="4" width="16" height="16"/>
+  </SvgIcon>
+);
+
+const CircleIcon = (props) => (
+  <SvgIcon {...props}>
+    <circle cx="12" cy="12" r="8"/>
+  </SvgIcon>
+)
 
 function App() {
 
@@ -31,6 +44,14 @@ function App() {
         sender: 'receive'
       }
   ]);
+
+
+  const [isRecording, setIsRecording] = useState(false);
+
+  const toggleRecording = () => {
+    setIsRecording(!isRecording);
+    // code for listening
+  }
 
   // function to load the questions from the db
   const loadQuestions = async () => {
@@ -185,6 +206,19 @@ function App() {
         />
         <div class="Button-wrapper">
           <Button variant="contained" sx={{maxHeight:"55px"}} onClick={handleSubmit}>Send</Button>
+          <IconButton
+            onClick={toggleRecording}
+            sx={{
+              marginLeft: '10px',
+              '&&': {
+                backgroundColor: isRecording ? 'darkred' : 'red',
+                color: 'white',
+              },
+              maxHeight: "55px",
+            }}
+          >
+            {isRecording ? <SquareIcon /> : <CircleIcon />}
+          </IconButton>
         </div>
         
       </Box>
