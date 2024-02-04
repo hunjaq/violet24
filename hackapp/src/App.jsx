@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
@@ -12,7 +12,29 @@ function App() {
 
   // User text input
   const [replyValue, setReplyValue] = useState('');
+
+  // Chat gpt reply
   const [gptResponse, setGptResponse] = useState('gpt response');
+
+  // message history
+  const [messages, setMessages] = useState(
+    [
+      {
+        text: 'GPT response',
+        sender: 'receive'
+      }
+  ]);
+
+
+  const messagesEndRef = useRef(null); // reference to last message
+
+  // follow last message
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView();
+  }
+
+  // stay on last message
+  useEffect(scrollToBottom, [messages]);
 
   // Track text box data
   const handleReply = (event) => {
@@ -21,6 +43,31 @@ function App() {
 
   // Submit text box
   const handleSubmit = async () => {
+    
+    // cannot enter nothing
+    if (replyValue === "") {
+      return;
+    }
+    
+    // message entered
+    const newMessage = {
+      text: replyValue,
+      sender: 'send'
+    };
+
+    // append new message
+    setMessages(messages => [...messages, newMessage]);
+    setReplyValue('');
+
+    // wait for gpt response
+    const placeholder = {
+      text: "...",
+      sender: 'receiver'
+    };
+    setMessages(messages => [...messages, placeholder]);
+    const placeHolderIndex = messages.length;
+
+
     try {
       // API call
       const response = await axios.post('_ENDPOINT', {
@@ -30,64 +77,66 @@ function App() {
           'Content-Type': 'application/json',
         }
       });
-      setGptResponse(response.data);
+
+      // show gpt reply
+      setMessages(currentMessages => {
+        let updatedMessages = [...currentMessages];
+        updatedMessages[placeHolderIndex] = {
+          text: response.data,
+          sender: 'receive'};
+          return updatedMessages;
+        });
+      // setGptResponse(response.data);
     }
     catch(error) {
       console.error('fetch operation failed', error);
-      if (error.response) {
-        console.error(error.response.data);
-        console.error(error.response.status);
-        console.error(error.response.headers);
-      }
-      else if (error.request) {
-        console.error(error.request);
-      }
-      else {
-        console.error('Error', error.message);
-      }
-    } 
+      // if (error.response) {
+      //   console.error(error.response.data);
+      //   console.error(error.response.status);
+      //   console.error(error.response.headers);
+      // }
+      // else if (error.request) {
+      //   console.error(error.request);
+      // }
+      // else {
+      //   console.error('Error', error.message);
+      // }
+      setMessages(currentMessages => {
+        let updatedMessages = [...currentMessages];
+        updatedMessages[updatedMessages.length - 1] = {text: "error fetching", sender: 'receive'};
+        return updatedMessages;
+      });
+    }
   };
 
 
   return (
-    <Box 
-      className="App" 
-      display="flex" 
-      flexDirection="column" 
-      justifyContent="space-between"
-      alignItems="center" 
-      height="100vh"
-      style={{ marginTop: '20px' }}
-      flexGrow={1}
-    >
-      <header className="Chat-Gpt">
+    <div className="AppContainer"> 
+      {/*Page title*/}
+      <div className="ChatHeader">
         <h1>Interview App</h1>
-      </header>
-      <Card sx={{ minWidth: 500, flexGrow: 1, marginBottom: '10px' }}>
-        <CardContent>
-          <Typography variant="h5" component="div">
-            Chat-GPT 
-          </Typography>
-          <Typography variant="body2">
-            {gptResponse}
-          </Typography>
-        </CardContent>
-      </Card>
-      <Card sx={{ minWidth: 500, marginBottom: '10px' }}>
-        <TextField
-          id="outlined-textarea"
-          label="Multiline Placeholder"
-          placeholder="Placeholder"
-          multiline
-          variant="standard" // Change from 'outlined' to 'standard'
-          sx={{ minWidth: 500 }}
-          value={replyValue}
-          onChange={handleReply}
+      </div>
+      {/*Chat box*/}
+      <div className="ChatBox">
+        {messages.map((message, index) => (
+          <p key={index} className={message.sender}>
+            {message.text}
+          </p>
+        ))}
+        <div ref={messagesEndRef}/>
+      </div>
+      {/*User input box*/}
+      <Box className="InputArea" >
+      <input maxLength={1500}
+        type="text"
+        placeholder="Type response here..."
+        value={replyValue}
+        onChange={handleReply}
         />
-        <Button variant="contained" onClick={handleSubmit}>Button</Button>
-      </Card>
-    </Box>
-  );
-  }
-
+        <Button variant="contained" onClick={handleSubmit}>Send</Button>
+      </Box>
+    </div>
+     );
+    }
+  
 export default App;
