@@ -82,10 +82,10 @@
 
 :root {
   --send-bg: skyblue;
-  --send-color: white;
+  --send-color: oldlace;
   --receive-bg: #E5E5EA;
   --receive-text: black;
-  --page-background: white;
+  --page-background: oldlace;
 }
 
 body {
