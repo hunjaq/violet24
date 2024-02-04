@@ -2,16 +2,18 @@ import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import axios from 'axios';
 import { AppBar, Toolbar } from '@mui/material';
 import qApi from './api/axiosConfig';
+import useSpeechRecognition from './hooks/useSpeechRecogniztionHook';
+import useGPTAPI from './hooks/useGPTAPI'; 
+
 
 function App() {
 
+  const { text, startListening, stopListening, isListening, hasRecognitionSupport,} = useSpeechRecognition();
+  const { sendTextToGPTAPI } = useGPTAPI(); // Use the new hook
   const [questions, setQuestions] = useState("");
 
   // User text input
@@ -87,43 +89,28 @@ function App() {
 
 
     try {
-      // API call
-      const response = await axios.post('_ENDPOINT', {
-        data: replyValue
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      // show gpt reply
+      const response = await sendTextToGPTAPI(replyValue, 'temp');
+      console.log(response);
+      console.log(replyValue);
       setMessages(currentMessages => {
         let updatedMessages = [...currentMessages];
-        updatedMessages[placeHolderIndex] = {
-          text: response.data,
-          sender: 'receive'};
-          return updatedMessages;
-        });
-      // setGptResponse(response.data);
-    }
-    catch(error) {
-      console.error('fetch operation failed', error);
-      // if (error.response) {
-      //   console.error(error.response.data);
-      //   console.error(error.response.status);
-      //   console.error(error.response.headers);
-      // }
-      // else if (error.request) {
-      //   console.error(error.request);
-      // }
-      // else {
-      //   console.error('Error', error.message);
-      // }
-      setMessages(currentMessages => {
-        let updatedMessages = [...currentMessages];
-        updatedMessages[updatedMessages.length - 1] = {text: "error fetching", sender: 'receive'};
+        updatedMessages[updatedMessages.length - 1] = {text: response, sender: 'receive'};
         return updatedMessages;
       });
+    } catch (error) {
+      console.error(error);
+    }
+      
+    }
+  
+
+  const handleSendText = async () => {
+    try {
+      const response = await sendTextToGPTAPI(text);
+      console.log(text);
+      console.log(response);
+    } catch (error) {
+      console.error(error);
     }
   };
 
