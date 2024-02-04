@@ -7,8 +7,12 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import axios from 'axios';
+import { AppBar, Toolbar } from '@mui/material';
+import qApi from './api/axiosConfig';
 
 function App() {
+
+  const [questions, setQuestions] = useState("");
 
   // User text input
   const [replyValue, setReplyValue] = useState('');
@@ -25,6 +29,20 @@ function App() {
       }
   ]);
 
+  const loadQuestions = async () => {
+    try {
+      const response = await qApi.get('/api/questions/all');
+      setQuestions(response.data);
+    }
+    catch(err) {
+      console.log(err);
+    }
+  }
+
+  //load questions from db
+  useEffect(() => {
+    loadQuestions();
+  }, []);
 
   const messagesEndRef = useRef(null); // reference to last message
 
@@ -113,9 +131,12 @@ function App() {
   return (
     <div className="AppContainer"> 
       {/*Page title*/}
-      <div className="ChatHeader">
-        <h1>Interview App</h1>
-      </div>
+      <AppBar position='static' sx={{backgroundColor:'skyblue'}}>
+        <Toolbar>
+          <h1 class="App-header"> Interviewer </h1>
+        </Toolbar>
+      </AppBar>
+
       {/*Chat box*/}
       <div className="ChatBox">
         {messages.map((message, index) => (
@@ -126,17 +147,33 @@ function App() {
         <div ref={messagesEndRef}/>
       </div>
       {/*User input box*/}
-      <Box className="InputArea" >
-      <input maxLength={1500}
-        type="text"
-        placeholder="Type response here..."
-        value={replyValue}
-        onChange={handleReply}
+      <Box className="InputArea" borderRadius={3} sx={{borderBottom:'1px solid blue'}}>
+        <TextField
+          fullWidth={1}
+          maxRows={8}
+          variant="standard"
+          multiline
+          placeholder="Enter Response Here..."
+          sx={{backgroundColor: "oldlace", borderRadius:3, marginLeft:'5px'}}
+          value={replyValue}
+          onChange={handleReply}
         />
-        <Button variant="contained" onClick={handleSubmit}>Send</Button>
+        <div class="Button-wrapper">
+          <Button variant="contained" sx={{maxHeight:"55px"}} onClick={handleSubmit}>Send</Button>
+        </div>
+        
       </Box>
     </div>
      );
     }
   
 export default App;
+
+/**
+ *         <input maxLength={1500}
+          type="text"
+          placeholder="Type response here..."
+          value={replyValue}
+          onChange={handleReply}
+        />
+ */
