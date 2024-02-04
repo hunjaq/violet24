@@ -23,7 +23,7 @@ export default function useGPTAPI() {
               following format: What's Good, followed by a small list (3 maximum)
               of what was good about the user's response, and Areas for Improvement
               followed by a small ist (3 maximum) of what the user could improve 
-              in their response. Always include both what's good and area for improvement.` + MongoDBText
+              in their response. Always include both what's good and area for improvement. The question asked was: ` + MongoDBText
             },
             {
               role: 'user',
