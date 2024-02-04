@@ -138,19 +138,8 @@ function App() {
     } catch (error) {
       console.error(error);
     }
-
-
-    // //send new question
-    // setMessages(currentMessages => {
-    //   let updatedMessages = [...messages, placeholder];
-    //   let q = newQ();
-    //   updatedMessages[updatedMessages.length - 1] = {text: q, sender: 'receive'};
-  
-    //   return updatedMessages;
-    // });
-
       
-    }
+  }
   
 
   const handleSendText = async () => {
