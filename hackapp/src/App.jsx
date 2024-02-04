@@ -45,13 +45,26 @@ function App() {
       }
   ]);
 
-
-  const [isRecording, setIsRecording] = useState(false);
-
   const toggleRecording = () => {
-    setIsRecording(!isRecording);
+    if (!messages[messages.length - 1].text === "...") {
+      return;
+      
+    }
     // code for listening
+    if (!isListening) {
+      startListening();
+    }
+    else {
+      stopListening();
+    }
+  
   }
+
+  useEffect(() => {
+    if (text !== "") {
+      setReplyValue(text);
+    }
+  }, [text])
 
   // function to load the questions from the db
   const loadQuestions = async () => {
@@ -141,13 +154,11 @@ function App() {
     //get gpt response
     try {
       const response = await sendTextToGPTAPI(replyValue, quest);
-      // console.log(response);
-      // console.log(replyValue);
+
       setMessages(currentMessages => {
         //send feedback
         let updatedMessages = [...currentMessages];
         updatedMessages[updatedMessages.length - 2] = {text: response, sender: 'receive'};
-        //console.log(updatedMessages);
 
         //send new question
         let q = newQ();
@@ -161,25 +172,13 @@ function App() {
     }
       
   }
-  
-
-  const handleSendText = async () => {
-    try {
-      const response = await sendTextToGPTAPI(text);
-      console.log(text);
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
 
   return (
     <div className="AppContainer"> 
       {/*Page title*/}
       <AppBar position='static' sx={{backgroundColor:'skyblue'}}>
         <Toolbar>
-          <h1 class="App-header"> Interviewer </h1>
+          <h1 class="App-header"> AInterviewer </h1>
         </Toolbar>
       </AppBar>
 
@@ -204,35 +203,29 @@ function App() {
           value={replyValue}
           onChange={handleReply}
         />
-        <div class="Button-wrapper">
-          <Button variant="contained" sx={{maxHeight:"55px"}} onClick={handleSubmit}>Send</Button>
-          <IconButton
-            onClick={toggleRecording}
-            sx={{
-              marginLeft: '10px',
-              '&&': {
-                backgroundColor: isRecording ? 'darkred' : 'red',
-                color: 'white',
-              },
-              maxHeight: "55px",
-            }}
-          >
-            {isRecording ? <SquareIcon /> : <CircleIcon />}
-          </IconButton>
-        </div>
-        
+        { hasRecognitionSupport ? (
+          <div class="Button-wrapper">
+            <Button variant="contained" sx={{maxHeight:"55px"}} onClick={handleSubmit}>Send</Button>
+            <IconButton
+              onClick={toggleRecording}
+              sx={{
+                marginLeft: '10px',
+                '&&': {
+                  backgroundColor: isListening ? 'darkred' : 'red',
+                  color: 'white',
+                },
+                maxHeight: "55px",
+              }}
+            >
+              {isListening ? <SquareIcon /> : <CircleIcon />}
+            </IconButton>
+          </div>
+          ) :
+          ( window.alert("No Microphone Support") )
+        }
       </Box>
     </div>
      );
     }
   
 export default App;
-
-/**
- *         <input maxLength={1500}
-          type="text"
-          placeholder="Type response here..."
-          value={replyValue}
-          onChange={handleReply}
-        />
- */
